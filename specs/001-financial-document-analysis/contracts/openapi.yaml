@@ -1,0 +1,402 @@
+openapi: 3.1.0
+info:
+  title: Financial Document Analysis API
+  version: 1.0.0
+  description: >
+    User-facing contract for report intake, evidence-backed analysis, and human approval.
+    Identity and authorization are enforced by the service; clients cannot set trusted access scopes.
+servers:
+  - url: /api/v1
+paths:
+  /reports:
+    post:
+      summary: Submit a financial report for analysis
+      operationId: submitReport
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "202":
+          description: Report accepted for processing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          $ref: "#/components/responses/Problem"
+        "401":
+          $ref: "#/components/responses/Problem"
+  /reports/{reportId}:
+    get:
+      summary: Get report status and metadata
+      operationId: getReport
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+      responses:
+        "200":
+          description: Authorized report status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          $ref: "#/components/responses/Problem"
+  /reports/{reportId}/analysis:
+    get:
+      summary: Get findings and recommendations for a report
+      operationId: getReportAnalysis
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+      responses:
+        "200":
+          description: Analysis result and current review states.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analysis"
+        "404":
+          $ref: "#/components/responses/Problem"
+  /reports/{reportId}/questions:
+    get:
+      summary: List the current user's persisted question and answer history for a report
+      operationId: listQuestions
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+      responses:
+        "200":
+          description: Recent authorized question and answer records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, question, answer, citations, limitations, created_at]
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    question:
+                      type: string
+                    answer:
+                      type: string
+                    citations:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Citation"
+                    limitations:
+                      type: array
+                      items:
+                        type: string
+                    created_at:
+                      type: string
+                      format: date-time
+    post:
+      summary: Ask a question over authorized report and knowledge sources
+      operationId: askQuestion
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question:
+                  type: string
+                  minLength: 1
+                  maxLength: 4000
+      responses:
+        "200":
+          description: Answer with citations and any evidence limitations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Answer"
+        "404":
+          $ref: "#/components/responses/Problem"
+  /knowledge-sources:
+    post:
+      summary: Add private text knowledge for the current user
+      operationId: createKnowledgeSource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, content]
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                content:
+                  type: string
+                  maxLength: 250000
+      responses:
+        "201":
+          description: Knowledge source stored and indexed.
+  /reports/{reportId}/citations/{pageNumber}:
+    get:
+      summary: Open an authorized report source page
+      operationId: getReportCitation
+      parameters:
+        - $ref: "#/components/parameters/ReportId"
+        - name: pageNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Source passage after current access authorization.
+        "404":
+          $ref: "#/components/responses/Problem"
+  /knowledge-sources/{sourceId}/citations/{chunkId}:
+    get:
+      summary: Open an authorized knowledge source excerpt
+      operationId: getKnowledgeCitation
+      parameters:
+        - name: sourceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: chunkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Source excerpt after current access authorization.
+        "404":
+          $ref: "#/components/responses/Problem"
+  /approvals:
+    get:
+      summary: List recommendations awaiting the current user's approval
+      operationId: listApprovals
+      responses:
+        "200":
+          description: Current user's authorized pending recommendations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recommendation"
+  /recommendations/{recommendation_id}/decision:
+    post:
+      summary: Approve or reject a pending sensitive recommendation
+      operationId: decideRecommendation
+      parameters:
+        - name: recommendation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome:
+                  type: string
+                  enum: [approved, rejected]
+                reason:
+                  type: string
+                  maxLength: 4000
+      responses:
+        "200":
+          description: Persisted decision and updated recommendation status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recommendation"
+        "403":
+          $ref: "#/components/responses/Problem"
+        "404":
+          $ref: "#/components/responses/Problem"
+        "409":
+          description: Recommendation is not pending or has already been decided.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+components:
+  parameters:
+    ReportId:
+      name: reportId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    Citation:
+      type: object
+      required: [source_id, label]
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        chunk_id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        page:
+          type: integer
+          minimum: 1
+          nullable: true
+        section:
+          type: string
+        excerpt:
+          type: string
+    Report:
+      type: object
+      required: [id, filename, status, submitted_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        status:
+          type: string
+          enum: [queued, processing, complete, failed]
+        submitted_at:
+          type: string
+          format: date-time
+        error:
+          type: string
+    Finding:
+      type: object
+      required: [id, title, summary, citations]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        summary:
+          type: string
+        uncertainty:
+          type: string
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Citation"
+        decisions:
+          type: array
+          items:
+            type: object
+            required: [outcome, created_at]
+            properties:
+              outcome:
+                type: string
+              reason:
+                type: string
+                nullable: true
+              created_at:
+                type: string
+                format: date-time
+    Recommendation:
+      type: object
+      required: [id, summary, rationale, status, sensitivity, citations]
+      properties:
+        id:
+          type: string
+          format: uuid
+        summary:
+          type: string
+        rationale:
+          type: string
+        assumptions:
+          type: array
+          items:
+            type: string
+        limitations:
+          type: array
+          items:
+            type: string
+        sensitivity:
+          type: string
+          enum: [ordinary, requires_approval]
+        status:
+          type: string
+          enum: [draft, pending_approval, approved, rejected, superseded]
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Citation"
+    Analysis:
+      type: object
+      required: [reportId, status, findings, recommendations]
+      properties:
+        reportId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, waiting_for_approval, complete, failed]
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Finding"
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Recommendation"
+        limitations:
+          type: array
+          items:
+            type: string
+    Answer:
+      type: object
+      required: [answer, citations, limitations]
+      properties:
+        answer:
+          type: string
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Citation"
+        limitations:
+          type: array
+          items:
+            type: string
+    Problem:
+      type: object
+      required: [title, status]
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+  responses:
+    Problem:
+      description: Request could not be completed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
