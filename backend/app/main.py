@@ -10,6 +10,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
 
 from app.api.approvals import router as approvals_router
+from app.api.auth import router as auth_router
 from app.api.knowledge import router as knowledge_router
 from app.api.questions import router as questions_router
 from app.api.reports import router as reports_router
@@ -46,6 +47,7 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 app.include_router(reports_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
 app.include_router(questions_router, prefix="/api/v1")
 app.include_router(approvals_router, prefix="/api/v1")
 app.include_router(knowledge_router, prefix="/api/v1")

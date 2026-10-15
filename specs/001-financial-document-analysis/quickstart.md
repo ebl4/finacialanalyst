@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - Windows with PowerShell, Python 3.12 or newer, Node.js LTS with npm, and Docker Desktop.
-- An organization-issued RS256 access token and its matching public key, issuer, and audience.
-- An OpenAI API key for report analysis, question answering, and embeddings.
+- A local demo mode can be used without an organization-issued access token.
+- An OpenAI API key is needed only for report analysis, question answering, and embeddings.
 
 Docker is used below to run PostgreSQL/pgvector and MinIO locally. The app itself runs directly on your computer.
 
@@ -54,21 +54,37 @@ Copy-Item backend\.env.example backend\.env
 notepad backend\.env
 ```
 
-Set these values in `backend\.env`:
+#### Optional: create an OpenAI API key for financial analysis
+
+You can sign in and explore the workspace without an OpenAI key. To analyze uploaded reports or ask questions, you will need one. If your organization manages OpenAI access, ask its OpenAI/platform administrator for a development key or project where you are allowed to create one. Otherwise:
+
+1. Sign in at [OpenAI Platform](https://platform.openai.com/), not just the ChatGPT website.
+2. Select or create an API project for this development work.
+3. Configure the project's API billing/usage limits as required by your account or organization.
+4. Open the project's API keys area, create a key, and copy it when shown. Treat it like a password; do not commit it, put it in frontend code, or share it in chat.
+
+A ChatGPT subscription and an API account are billed separately; having ChatGPT access alone does not guarantee API access or API credit. Follow your organization's rules for model use and spending limits.
+
+For local demo mode, set these values in `backend\.env`. Leave `OPENAI_API_KEY` blank if you only want to test guest login and navigate the workspace:
 
 ```dotenv
-DATABASE_URL=postgresql+psycopg://financial:localdevpassword@localhost:5432/financial
-JWT_ISSUER=<issuer from your identity provider>
-JWT_AUDIENCE=<audience configured for this application>
-JWT_PUBLIC_KEY=<matching RS256 public key>
-OPENAI_API_KEY=<your OpenAI API key>
+APP_ENV=development
+DEMO_MODE=true
+DEMO_AUTH_SECRET=<a random secret with at least 32 characters>
+OPENAI_API_KEY=<API key for your OpenAI project>
 S3_ENDPOINT_URL=http://localhost:9000
 S3_BUCKET=financial-reports
 S3_ACCESS_KEY_ID=localminio
 S3_SECRET_ACCESS_KEY=localminio123
 ```
 
-Keep the other example values unless your organization uses different model settings. Replace every `<...>` value with the real value from your organization/provider. The token's public key, issuer, and audience must match; do not paste a private signing key into this file. Never commit `backend\.env`.
+To generate a strong demo signing secret, open PowerShell and run:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Copy the printed value into `DEMO_AUTH_SECRET`. Keep `DEMO_MODE=true` only for local development or automated tests. The backend rejects demo mode in production. The demo accounts have fixed shared identities and are not private: anyone who can reach this local demo can use both the analyst and approver roles. Do not expose the demo server to the internet or upload real financial documents. Never commit `backend\.env`.
 
 ### 3. Install and prepare the Python backend
 
@@ -105,15 +121,16 @@ npm run dev
 
 Leave this window open too. Open the URL printed by Vite, normally `http://127.0.0.1:5173`.
 
-### 6. Connect and use the workspace
+### 6. Sign in and use the workspace
 
-On the website's connection screen, paste a valid organization-issued RS256 access token and connect. The token must:
+With `DEMO_MODE=true`, the connection screen offers two guest choices:
 
-- Have a UUID value in its `sub` claim.
-- Include `roles` as a list containing `analyst`, `approver`, or both, as permitted for that user.
-- Be valid for the configured issuer and audience and not be expired.
+- **Guest analyst** — upload and review reports, ask questions, and create analyses.
+- **Guest approver** — review and decide recommendations assigned to the demo approver.
 
-The app does not include a local login page or a test-token generator. Ask your identity-provider administrator for a development token and the matching issuer, audience, and public key. Without them, the services can start, but authenticated screens and API actions will not work. Report analysis also requires a valid OpenAI API key.
+Click either guest role to enter without a password or organization token. The backend issues a short-lived demo token automatically. To test approvals, first sign in once as **Guest approver**, sign out, then sign in as **Guest analyst** before submitting a report. Demo users share these fixed accounts and their data; do not use the demo for real decisions or confidential reports.
+
+If demo mode is off, the app instead requires an organization-issued RS256 API access token and its matching issuer, audience, and public key. Contact your identity-provider administrator for those values. Report analysis and question answering require an OpenAI API key in either mode.
 
 ### Stop local services
 

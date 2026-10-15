@@ -87,11 +87,11 @@ type QuestionAnswer = {
 type Approval = Recommendation;
 type View = "overview" | "reports" | "approvals";
 
-async function request<T>(token: string, path: string, init?: RequestInit): Promise<T> {
+async function request<T>(token: string | null, path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/v1${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...init?.headers,
     },
@@ -115,6 +115,9 @@ function StatusPill({ status }: { status: string }) {
 export default function App() {
   const [token, setToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
+  const [demoEnabled, setDemoEnabled] = useState(false);
+  const [demoSession, setDemoSession] = useState(false);
+  const [userName, setUserName] = useState("Financial analyst");
   const [connected, setConnected] = useState(false);
   const [view, setView] = useState<View>("overview");
   const [reports, setReports] = useState<Report[]>([]);
@@ -131,6 +134,20 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void request<{ enabled: boolean }>(null, "/auth/demo")
+      .then((result) => {
+        if (active) setDemoEnabled(result.enabled);
+      })
+      .catch(() => {
+        if (active) setDemoEnabled(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const selected = useMemo(
     () => reports.find((report) => report.id === selectedReport) ?? null,
@@ -200,9 +217,35 @@ export default function App() {
       await loadWorkspace(tokenInput.trim());
       setToken(tokenInput.trim());
       setConnected(true);
+      setDemoSession(false);
+      setUserName("Financial analyst");
       setNotice("Secure workspace connected.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not connect to the workspace.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function connectDemo(role: "analyst" | "approver") {
+    setBusy(true);
+    setError("");
+    try {
+      const login = await request<{
+        access_token: string;
+        display_name: string;
+      }>(null, "/auth/demo", {
+        method: "POST",
+        body: JSON.stringify({ role }),
+      });
+      await loadWorkspace(login.access_token);
+      setToken(login.access_token);
+      setDemoSession(true);
+      setUserName(login.display_name);
+      setConnected(true);
+      setNotice("Demo workspace connected. Do not use demo decisions for real business.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not start the demo session.");
     } finally {
       setBusy(false);
     }
@@ -311,8 +354,40 @@ export default function App() {
             <h1>Clarity for the<br /><span>decisions that matter.</span></h1>
             <p>Bring financial reports into focus with evidence-led analysis and human oversight at every critical step.</p>
           </div>
+          {demoEnabled && (
+            <section className="demo-login" aria-labelledby="demo-login-title">
+              <span className="demo-label">DEMO MODE</span>
+              <h2 id="demo-login-title">Explore as a guest</h2>
+              <p>Choose a demo role. No organization token or password is needed.</p>
+              <div className="demo-login-actions">
+                <button
+                  className="button button-primary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void connectDemo("analyst")}
+                >
+                  {busy ? <LoaderCircle className="spin" size={17} /> : <Fingerprint size={16} />}
+                  Guest analyst
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void connectDemo("approver")}
+                >
+                  Guest approver
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+              <p className="demo-warning">Demo roles can view or change demo workspace data. Never use them for real financial decisions.</p>
+              <div className="connect-divider"><span>or use an organization account</span></div>
+            </section>
+          )}
           <form onSubmit={connect} className="connect-form">
-            <label htmlFor="access-token">Secure access token</label>
+            <label htmlFor="access-token">
+              {demoEnabled ? "Organization access token" : "Secure access token"}
+            </label>
             <input
               id="access-token"
               type="password"
@@ -357,9 +432,15 @@ export default function App() {
           <div className="security-icon"><ShieldCheck size={17} /></div>
           <div><strong>Private by design</strong><span>Sources stay permission-scoped</span></div>
         </div>
-        <button className="profile-row" onClick={() => { setConnected(false); setToken(""); setTokenInput(""); }}>
+        <button className="profile-row" onClick={() => {
+          setConnected(false);
+          setToken("");
+          setTokenInput("");
+          setDemoSession(false);
+          setUserName("Financial analyst");
+        }}>
           <div className="avatar">FA</div>
-          <div className="profile-copy"><strong>Financial analyst</strong><span>Workspace session</span></div>
+          <div className="profile-copy"><strong>{userName}</strong><span>{demoSession ? "Demo session" : "Workspace session"}</span></div>
           <ChevronDown size={16} />
         </button>
       </aside>
@@ -368,7 +449,7 @@ export default function App() {
         <header className="topbar">
           <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{viewLabel(view)}</strong></div>
           <div className="top-actions">
-            <span className="live-indicator"><i /> Connected</span>
+            <span className={`live-indicator${demoSession ? " demo-indicator" : ""}`}><i /> {demoSession ? "Demo session" : "Connected"}</span>
             <button className="icon-button" aria-label="Notifications"><Bell size={18} /><i /></button>
             <div className="avatar avatar-small">FA</div>
           </div>

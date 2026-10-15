@@ -96,6 +96,7 @@ An analyst uses a modern, visually distinctive workspace to find reports, follow
 - **FR-013**: The system MUST present report status, findings, evidence, recommendations, and pending approvals in a clear, visually coherent workspace that adapts to desktop and mobile screen sizes.
 - **FR-014**: The system MUST explain report processing failures, incomplete source searches, and material limitations without presenting partial or unsupported results as complete.
 - **FR-015**: The system MUST treat submitted document content as untrusted source material and MUST NOT allow instructions within a document to override user permissions or human-approval requirements.
+- **FR-016**: The system MAY offer guest analyst and approver accounts in an explicitly enabled development/demo environment. Demo access MUST be disabled by default, MUST be rejected in production, and MUST be visibly identified as demo access so it cannot be mistaken for an organization-authenticated session.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -127,3 +128,4 @@ An analyst uses a modern, visually distinctive workspace to find reports, follow
 - Human approvers are designated by the organization and may differ from report submitters.
 - The first release is an accessible, responsive web experience intended for desktop and mobile browsers.
 - Retention and deletion periods for reports, analyses, and approval records follow the organization's applicable records policies.
+- Local demo guest identities are shared, non-private accounts for synthetic or disposable test data only; they are not suitable for real financial information or decisions.

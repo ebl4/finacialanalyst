@@ -230,6 +230,17 @@ button:disabled { opacity: .58; cursor: not-allowed; }
 .connect-form input { height: 43px; padding: 0 12px; color: #ecf3f2; border: 1px solid rgba(190,212,220,.15); border-radius: 8px; background: rgba(255,255,255,.035); font-size: 11px; }
 .connect-form input::placeholder { color: #607079; }
 .connect-form .button { margin-top: 4px; }
+.demo-login { margin-top: 24px; padding: 17px; border: 1px solid rgba(115,223,180,.19); border-radius: 11px; background: rgba(87,185,143,.055); }
+.demo-label { color: #87dcb6; font: 10px "DM Mono", monospace; letter-spacing: 1px; }
+.demo-login h2 { margin: 8px 0 5px; font: 600 17px Manrope, sans-serif; }
+.demo-login > p { margin: 0; color: #91a0a4; font-size: 11px; line-height: 1.6; }
+.demo-login-actions { display: grid; gap: 8px; margin-top: 14px; }
+.demo-login-actions .button { width: 100%; }
+.demo-warning { padding-top: 12px; color: #c9ac76 !important; }
+.connect-divider { display: flex; align-items: center; gap: 10px; margin-top: 17px; color: #687a81; font-size: 10px; }
+.connect-divider::before, .connect-divider::after { height: 1px; flex: 1; background: rgba(190,212,220,.1); content: ""; }
+.demo-indicator { color: #d7bc81; }
+.demo-indicator i { background: #d7bc81 !important; box-shadow: 0 0 8px rgba(215,188,129,.7) !important; }
 .inline-error { margin: 2px 0 0; color: #efaaa2; font-size: 11px; }
 .connect-foot { display: flex; align-items: center; gap: 7px; margin-top: 17px; color: #687a81; font-size: 10px; }
 .connect-foot svg { color: #74b99a; }
