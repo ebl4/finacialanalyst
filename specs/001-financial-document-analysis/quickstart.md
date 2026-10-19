@@ -34,7 +34,7 @@ docker run -d --name financial-minio `
   -e MINIO_ROOT_USER=localminio `
   -e MINIO_ROOT_PASSWORD=localminio123 `
   -v financial_minio:/data `
-  quay.io/minio/minio server /data --console-address ":9001"
+  pgsty/silo:RELEASE.2026-10-15T00-00-00Z-distroless server /data --console-address ":9001"
 ```
 
 Open `http://localhost:9001`, sign in with `localminio` / `localminio123`, and create a bucket named `financial-reports`. These credentials and services are for local development only.
