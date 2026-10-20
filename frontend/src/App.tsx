@@ -107,6 +107,13 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(value));
 }
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning.";
+  if (hour < 18) return "Good afternoon.";
+  return "Good evening.";
+}
+
 function StatusPill({ status }: { status: string }) {
   const normalized = status.toLowerCase().replaceAll("_", " ");
   return <span className={`status-pill status-${status.toLowerCase()}`}>{normalized}</span>;
@@ -459,7 +466,7 @@ export default function App() {
           <div className="page-heading">
             <div>
               <span className="eyebrow"><Sparkles size={14} /> FINANCIAL INTELLIGENCE</span>
-              <h1>{view === "overview" ? "Good morning." : viewLabel(view)}</h1>
+              <h1>{view === "overview" ? getGreeting() : viewLabel(view)}</h1>
               <p>{view === "overview" ? "A clearer view of your financial landscape starts here." : pageSubtitle(view)}</p>
             </div>
             <label className={`button button-primary upload-button ${busy ? "disabled" : ""}`}>
