@@ -1,0 +1,40 @@
+flowchart LR
+    analyst["Analista / aprovador"]
+    browser["Navegador<br/>React 18 · TypeScript 5 · Vite"]
+
+    subgraph backend["API e aplicação · Python 3.12"]
+        api["FastAPI<br/>REST · Pydantic"]
+        auth["Autenticação e autorização<br/>JWT RS256 · papéis"]
+        services["Serviços de aplicação<br/>upload · extração PDF · perguntas · aprovação"]
+        worker["Worker recuperável<br/>fila e processamento"]
+        graph["LangGraph<br/>checkpoints persistentes"]
+        agents["Agentes LangChain<br/>Planner → Retrieval → Analysis → Validation"]
+        api --> auth
+        auth --> services
+        services --> worker
+        worker --> graph
+        graph --> agents
+    end
+
+    subgraph storage["Persistência"]
+        postgres[("PostgreSQL + pgvector<br/>relacional · vetores · estado/checkpoints")]
+        objects[("Armazenamento S3<br/>PDFs originais · MinIO local")]
+    end
+
+    models["Provedor de IA<br/>OpenAI ou Google Gemini<br/>LLM · embeddings"]
+    approval["Aprovação humana<br/>pendente → aprovada / rejeitada"]
+    citations["Resultados com evidências<br/>achados · respostas · citações"]
+
+    analyst <-->|"interface responsiva"| browser
+    browser <-->|"REST / JSON"| api
+    services -->|"PDF original"| objects
+    services -->|"texto extraído · registros"| postgres
+    agents <-->|"LLM · embeddings"| models
+    agents <-->|"busca vetorial autorizada"| postgres
+    graph <-->|"estado durável"| postgres
+    agents -->|"propostas"| services
+    services -->|"conclusões citadas"| citations
+    citations --> browser
+    services -->|"decisão sensível"| approval
+    approval -->|"decisão registrada"| postgres
+    approval -->|"status"| browser

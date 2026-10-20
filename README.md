@@ -14,4 +14,10 @@ The product is being developed from the feature specification in `specs/001-fina
 
 See the [step-by-step local setup guide](specs/001-financial-document-analysis/quickstart.md) to start the database, backend API, and web application on Windows.
 
+## Architecture
+
+![Arquitetura do Financial Analyst](specs/001-financial-document-analysis/architecture.svg)
+
+See the [editable architecture diagram (Mermaid)](specs/001-financial-document-analysis/architecture.mmd).
+
 For token-free local testing, the guide also explains how to enable the development-only guest analyst and guest approver accounts. Demo mode is disabled in production and must not be used with real financial data.

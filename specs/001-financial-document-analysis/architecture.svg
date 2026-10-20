@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title description">
+  <title id="title">Arquitetura do Financial Analyst</title>
+  <desc id="description">Visão da aplicação web, API Python, workflow com agentes, provedores de IA, persistência PostgreSQL com pgvector e armazenamento S3, com revisão humana das decisões sensíveis.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071426"/>
+      <stop offset="1" stop-color="#101d32"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102944"/>
+      <stop offset="1" stop-color="#12313b"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#020817" flood-opacity=".35"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7295b9"/>
+    </marker>
+    <marker id="arrowMint" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4bd6b1"/>
+    </marker>
+    <style>
+      text{font-family:Inter,"Segoe UI",Arial,sans-serif}
+      .muted{fill:#a9bacd}
+      .small{font-size:15px}
+      .label{font-size:14px;font-weight:700;letter-spacing:1.7px}
+      .card{fill:#12243a;stroke:#2b405a;stroke-width:1.5}
+      .inner{fill:#182f48;stroke:#2c4965;stroke-width:1}
+      .line{fill:none;stroke:#7295b9;stroke-width:2.5;marker-end:url(#arrow)}
+      .mintline{fill:none;stroke:#4bd6b1;stroke-width:2.5;marker-end:url(#arrowMint)}
+    </style>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#background)"/>
+  <circle cx="1420" cy="100" r="240" fill="#18394e" opacity=".18"/>
+  <circle cx="110" cy="920" r="210" fill="#16454d" opacity=".12"/>
+
+  <text x="76" y="78" fill="#65e0bf" font-size="15" font-weight="700" letter-spacing="3">VISÃO GERAL · FULL STACK</text>
+  <text x="76" y="137" fill="#f3f7fb" font-size="42" font-weight="700">Financial Analyst</text>
+  <text x="78" y="174" class="muted" font-size="18">Análise financeira com evidências, busca contextual e aprovação humana</text>
+  <rect x="1320" y="72" width="204" height="42" rx="21" fill="#173c3b" stroke="#2d6d60"/>
+  <circle cx="1343" cy="93" r="5" fill="#4bd6b1"/>
+  <text x="1357" y="99" fill="#a9f3df" font-size="14" font-weight="600">HUMANO NO LOOP</text>
+
+  <rect x="72" y="230" width="260" height="550" rx="22" class="card" filter="url(#shadow)"/>
+  <text x="100" y="271" class="label" fill="#7fa8ce">EXPERIÊNCIA</text>
+  <circle cx="122" cy="336" r="27" fill="#173b48"/>
+  <path d="M110 339h24M113 332h18M116 325h12M109 346h26" fill="none" stroke="#65e0bf" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="100" y="395" fill="#f3f7fb" font-size="23" font-weight="650">Workspace web</text>
+  <text x="100" y="427" class="muted" font-size="16">React 18 · TypeScript 5</text>
+  <text x="100" y="453" class="muted" font-size="16">Vite · interface responsiva</text>
+  <line x1="100" y1="486" x2="304" y2="486" stroke="#2a4058"/>
+  <text x="100" y="525" fill="#dce7f2" font-size="16" font-weight="600">Analista</text>
+  <text x="100" y="551" class="muted small">Envia relatórios e investiga</text>
+  <text x="100" y="574" class="muted small">resultados com fontes citadas.</text>
+  <text x="100" y="626" fill="#dce7f2" font-size="16" font-weight="600">Aprovador</text>
+  <text x="100" y="652" class="muted small">Decide recomendações sensíveis</text>
+  <text x="100" y="675" class="muted small">e registra o motivo.</text>
+  <rect x="100" y="711" width="204" height="38" rx="10" fill="#102d38"/>
+  <text x="117" y="735" fill="#74e6c7" font-size="14" font-weight="600">REST · JSON · JWT</text>
+
+  <rect x="382" y="230" width="590" height="550" rx="22" fill="url(#hero)" stroke="#285166" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="414" y="271" class="label" fill="#65e0bf">APLICAÇÃO · PYTHON 3.12</text>
+  <text x="414" y="311" fill="#f3f7fb" font-size="25" font-weight="650">FastAPI · Pydantic · SQLAlchemy</text>
+  <rect x="414" y="336" width="526" height="68" rx="13" class="inner"/>
+  <text x="434" y="365" fill="#eaf1f8" font-size="16" font-weight="600">API REST + controle de acesso</text>
+  <text x="434" y="388" class="muted small">Relatórios · perguntas · conhecimento · aprovações</text>
+
+  <rect x="414" y="427" width="526" height="79" rx="13" class="inner"/>
+  <text x="434" y="456" fill="#eaf1f8" font-size="16" font-weight="600">Serviços de aplicação</text>
+  <text x="434" y="480" class="muted small">Upload · extração PDF (pypdf) · persistência · auditoria</text>
+
+  <rect x="414" y="529" width="526" height="211" rx="15" fill="#102239" stroke="#31506c"/>
+  <text x="434" y="560" fill="#75ddc0" font-size="15" font-weight="700">WORKER + LANGGRAPH · CHECKPOINTS DURÁVEIS</text>
+  <rect x="434" y="580" width="112" height="72" rx="11" fill="#1b3851"/>
+  <rect x="562" y="580" width="112" height="72" rx="11" fill="#1b3851"/>
+  <rect x="690" y="580" width="112" height="72" rx="11" fill="#1b3851"/>
+  <rect x="818" y="580" width="102" height="72" rx="11" fill="#1b3851"/>
+  <text x="452" y="609" fill="#f3f7fb" font-size="15" font-weight="650">Planner</text>
+  <text x="448" y="632" class="muted" font-size="13">planeja</text>
+  <text x="578" y="609" fill="#f3f7fb" font-size="15" font-weight="650">Retrieval</text>
+  <text x="578" y="632" class="muted" font-size="13">busca evidência</text>
+  <text x="710" y="609" fill="#f3f7fb" font-size="15" font-weight="650">Analysis</text>
+  <text x="710" y="632" class="muted" font-size="13">analisa</text>
+  <text x="827" y="609" fill="#f3f7fb" font-size="15" font-weight="650">Validation</text>
+  <text x="839" y="632" class="muted" font-size="13">valida</text>
+  <path d="M548 616h10M676 616h10M804 616h10" class="mintline"/>
+  <text x="434" y="696" class="muted small">LangChain · propostas estruturadas · retomada após interrupção</text>
+
+  <rect x="1040" y="230" width="488" height="300" rx="22" class="card" filter="url(#shadow)"/>
+  <text x="1072" y="271" class="label" fill="#7fa8ce">DADOS E ARQUIVOS</text>
+  <rect x="1072" y="300" width="424" height="96" rx="14" class="inner"/>
+  <circle cx="1110" cy="348" r="21" fill="#253a59"/>
+  <ellipse cx="1110" cy="340" rx="11" ry="5" fill="none" stroke="#a8c8ee" stroke-width="2"/>
+  <path d="M1099 340v15c0 6 22 6 22 0v-15M1099 347c0 6 22 6 22 0" fill="none" stroke="#a8c8ee" stroke-width="2"/>
+  <text x="1145" y="340" fill="#f3f7fb" font-size="18" font-weight="650">PostgreSQL + pgvector</text>
+  <text x="1145" y="367" class="muted small">Registros · embeddings · busca vetorial</text>
+  <rect x="1072" y="414" width="424" height="86" rx="14" class="inner"/>
+  <path d="M1098 448l12-9 12 9v20h-24zM1105 468v-13h10v13" fill="none" stroke="#80d9c0" stroke-width="2"/>
+  <text x="1145" y="449" fill="#f3f7fb" font-size="18" font-weight="650">Armazenamento compatível com S3</text>
+  <text x="1145" y="475" class="muted small">PDF original · MinIO no desenvolvimento</text>
+
+  <rect x="1040" y="560" width="488" height="220" rx="22" class="card" filter="url(#shadow)"/>
+  <text x="1072" y="601" class="label" fill="#7fa8ce">SERVIÇOS EXTERNOS</text>
+  <rect x="1072" y="628" width="424" height="65" rx="13" fill="#1a304b" stroke="#344f6d"/>
+  <circle cx="1107" cy="660" r="17" fill="#233d59"/>
+  <path d="M1099 660h16M1107 652v16" stroke="#b2d1f1" stroke-width="2" stroke-linecap="round"/>
+  <text x="1140" y="656" fill="#f3f7fb" font-size="17" font-weight="650">OpenAI ou Google Gemini</text>
+  <text x="1140" y="679" class="muted small">Modelo de linguagem + embeddings</text>
+  <text x="1072" y="736" class="muted small">Identidade organizacional via JWT RS256</text>
+
+  <path d="M332 460h46" class="line"/>
+  <text x="337" y="444" fill="#9eb6ce" font-size="12">REST</text>
+  <path d="M972 358h62" class="line"/>
+  <text x="979" y="342" fill="#9eb6ce" font-size="12">dados</text>
+  <path d="M972 449h62" class="line"/>
+  <text x="978" y="435" fill="#9eb6ce" font-size="12">PDF</text>
+  <path d="M940 617h42V660h52" class="mintline"/>
+  <text x="969" y="602" fill="#82dfc4" font-size="12">LLM · vetores</text>
+  <path d="M972 708h28V818H706V784" fill="none" stroke="#4bd6b1" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#arrowMint)"/>
+  <text x="1040" y="838" fill="#a9bacd" font-size="13">Propostas sensíveis seguem para decisão humana — nunca são aprovadas pelo agente.</text>
+
+  <rect x="72" y="864" width="1456" height="76" rx="18" fill="#0d1c2d" stroke="#263d55"/>
+  <text x="101" y="895" fill="#65e0bf" font-size="13" font-weight="700" letter-spacing="1.4">FLUXO DE VALOR</text>
+  <text x="101" y="922" fill="#dce7f2" font-size="15">PDF → extração → recuperação de evidências autorizadas → análise validada → achados citados → aprovação humana quando necessária</text>
+</svg>
