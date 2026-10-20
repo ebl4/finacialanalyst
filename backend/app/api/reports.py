@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.auth.dependencies import CurrentUser, get_current_user
-from app.core.config import get_settings
+from app.core.config import get_ai_api_key, get_settings
 from app.persistence.database import get_db
 from app.persistence.models import (
     AnalysisRun,
@@ -44,12 +44,18 @@ async def submit_report(
 ):
     if Role.ANALYST.value not in user.roles:
         raise HTTPException(status_code=403, detail="Analyst permission is required.")
-    filename = (file.filename or "").strip()
-    contents = await file.read(get_settings().max_upload_bytes + 1)
+    settings = get_settings()
     try:
-        validate_pdf_upload(
-            filename, file.content_type or "", contents, get_settings().max_upload_bytes
-        )
+        get_ai_api_key(settings)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=str(exc),
+        ) from exc
+    filename = (file.filename or "").strip()
+    contents = await file.read(settings.max_upload_bytes + 1)
+    try:
+        validate_pdf_upload(filename, file.content_type or "", contents, settings.max_upload_bytes)
     except ReportUploadError as exc:
         code = 413 if "upload limit" in str(exc) else 400
         raise HTTPException(status_code=code, detail=str(exc)) from exc
@@ -79,7 +85,9 @@ async def submit_report(
         status=AnalysisStatus.QUEUED,
         stage="queued",
     )
-    session.add_all([report, run])
+    session.add(report)
+    session.flush()
+    session.add(run)
     session.commit()
     return {
         "id": report.id,

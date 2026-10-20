@@ -136,6 +136,8 @@ class EvidenceChunk(Base):
     page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     content: Mapped[str] = mapped_column(Text)
     embedding: Mapped[list[float]] = mapped_column(Vector(1536))
+    embedding_provider: Mapped[str] = mapped_column(String(20))
+    embedding_model: Mapped[str] = mapped_column(String(100))
 
 
 class AnalysisRun(Base):

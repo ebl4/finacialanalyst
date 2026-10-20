@@ -1,8 +1,9 @@
+from types import SimpleNamespace
 from uuid import uuid4
 
 from sqlalchemy.dialects import postgresql
 
-from app.persistence.vector_store import retrieve_chunks
+from app.persistence import vector_store
 
 
 class CapturingSession:
@@ -18,11 +19,19 @@ class CapturingSession:
 
 def test_vector_retrieval_filters_owner_report_and_owned_knowledge(monkeypatch) -> None:
     monkeypatch.setattr("app.persistence.vector_store.embed_query", lambda _: [0.0] * 1536)
+    monkeypatch.setattr(
+        vector_store,
+        "get_settings",
+        lambda: SimpleNamespace(
+            ai_provider="gemini",
+            gemini_embedding_model="gemini-embedding-001",
+        ),
+    )
     session = CapturingSession()
     owner_id = uuid4()
     report_id = uuid4()
 
-    retrieve_chunks(
+    vector_store.retrieve_chunks(
         session,
         owner_id=owner_id,
         report_id=report_id,
@@ -34,5 +43,9 @@ def test_vector_retrieval_filters_owner_report_and_owned_knowledge(monkeypatch) 
     assert "evidence_chunks.owner_id" in sql
     assert "evidence_chunks.report_id" in sql
     assert "evidence_chunks.knowledge_source_id IS NOT NULL" in sql
+    assert "evidence_chunks.embedding_provider" in sql
+    assert "evidence_chunks.embedding_model" in sql
     assert owner_id in compiled.params.values()
     assert report_id in compiled.params.values()
+    assert "gemini" in compiled.params.values()
+    assert "gemini-embedding-001" in compiled.params.values()

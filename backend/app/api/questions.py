@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from langchain_openai import ChatOpenAI
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -55,7 +54,7 @@ def ask_question(
         session.commit()
         return response
 
-    model: ChatOpenAI = get_chat_model()
+    model = get_chat_model()
     answer = model.with_structured_output(AnswerDraft).invoke(
         [
             ("system", QUESTION_PROMPT),

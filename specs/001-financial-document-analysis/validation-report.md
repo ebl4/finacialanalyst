@@ -19,13 +19,14 @@ Este relatório converte os cenários de [quickstart.md](./quickstart.md) em um 
 
 1. Siga [quickstart.md](./quickstart.md) até iniciar PostgreSQL/pgvector, MinIO, API e frontend.
 2. Confirme `http://127.0.0.1:8000/health` (`{"status":"ok"}`) e abra o endereço Vite, normalmente `http://127.0.0.1:5173`.
-3. Para cenários com perguntas ou análise, configure uma chave de API OpenAI válida no `backend\.env`. Não a inclua neste relatório nem em evidências.
+3. Para cenários com perguntas ou análise, configure uma chave válida para o provedor selecionado por `AI_PROVIDER` (`OPENAI_API_KEY` ou `GOOGLE_API_KEY`) no `backend\.env`. Não a inclua neste relatório nem em evidências.
 4. Use somente PDFs sintéticos/de teste. O modo demo usa identidades fixas e compartilhadas; não use documentos reais, confidenciais ou decisões financeiras reais.
 5. Para validar aprovações, entre uma vez como **Guest approver**, saia e entre como **Guest analyst** antes de enviar o relatório, conforme o quickstart. Isso prepara a identidade do aprovador designado no fluxo demo.
-6. Tenha à mão:
-   - um PDF legível, com páginas numeradas e fatos fáceis de conferir;
-   - um arquivo inválido para teste (por exemplo, `.txt` ou PDF vazio/corrompido);
-   - duas perguntas: uma cuja resposta aparece claramente no PDF e outra cuja resposta não aparece.
+6. Use o PDF sintético de teste [financial-report-validation-sample.pdf](./samples/financial-report-validation-sample.pdf), com três páginas numeradas e dados fictícios;
+7. Para o cenário VAL-03, use estas perguntas:
+   - **Com evidência:** “Qual foi a receita líquida em 2025?” Resposta que deve ser verificável: **R$ 12.500 mil (R$ 12,5 milhões)**, na página 1.
+   - **Sem evidência:** “Qual é a previsão de receita líquida para 2026?” O documento informa que não contém essa previsão; a resposta esperada é que não há evidência suficiente, sem estimar ou inventar um valor.
+8. Tenha também um arquivo inválido para o teste VAL-06 (por exemplo, um `.txt` ou PDF vazio/corrompido).
 
 **Pré-verificações**
 
@@ -35,7 +36,7 @@ Este relatório converte os cenários de [quickstart.md](./quickstart.md) em um 
 | Bucket `financial-reports` criado no MinIO | |
 | Migrações aplicadas sem erro | |
 | API saudável e frontend acessível | |
-| Chave OpenAI disponível para cenários que a exigem (não registrar o valor) | |
+| Chave do provedor de IA selecionado disponível (não registrar o valor) | |
 | Login como Guest approver e depois como Guest analyst concluído | |
 
 ## 3. Cenários manuais
@@ -43,7 +44,7 @@ Este relatório converte os cenários de [quickstart.md](./quickstart.md) em um 
 ### VAL-01 — Enviar relatório e acompanhar o processamento
 
 **Passos**
-1. Como Guest analyst, envie um PDF de teste legível pela área de relatórios.
+1. Como Guest analyst, envie [financial-report-validation-sample.pdf](./samples/financial-report-validation-sample.pdf) pela área de relatórios.
 2. Anote o nome/identificador exibido e observe o estado até o processamento terminar.
 3. Atualize a página e localize o relatório novamente.
 
@@ -73,9 +74,9 @@ Este relatório converte os cenários de [quickstart.md](./quickstart.md) em um 
 ### VAL-03 — Pergunta com evidência, sem evidência e persistência do histórico
 
 **Passos**
-1. Na tela do relatório, faça uma pergunta cuja resposta esteja explícita no PDF.
+1. Na tela do relatório, pergunte: “Qual foi a receita líquida em 2025?”
 2. Confira resposta e citações; abra as citações e verifique o conteúdo.
-3. Faça uma pergunta cuja resposta não esteja no PDF nem nas fontes de conhecimento permitidas.
+3. Faça a pergunta: “Qual é a previsão de receita líquida para 2026?” O PDF não fornece essa previsão.
 4. Atualize a página ou reabra o relatório e confira o histórico das duas perguntas.
 
 **Resultado esperado**

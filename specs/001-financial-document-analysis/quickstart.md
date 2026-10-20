@@ -4,7 +4,7 @@
 
 - Windows with PowerShell, Python 3.12 or newer, Node.js LTS with npm, and Docker Desktop.
 - A local demo mode can be used without an organization-issued access token.
-- An OpenAI API key is needed only for report analysis, question answering, and embeddings.
+- An OpenAI or Google Gemini API key is needed only for report analysis, question answering, and embeddings.
 
 Docker is used below to run PostgreSQL/pgvector and MinIO locally. The app itself runs directly on your computer.
 
@@ -54,24 +54,25 @@ Copy-Item backend\.env.example backend\.env
 notepad backend\.env
 ```
 
-#### Optional: create an OpenAI API key for financial analysis
+#### Optional: configure OpenAI or Gemini for financial analysis
 
-You can sign in and explore the workspace without an OpenAI key. To analyze uploaded reports or ask questions, you will need one. If your organization manages OpenAI access, ask its OpenAI/platform administrator for a development key or project where you are allowed to create one. Otherwise:
+You can sign in and explore the workspace without an AI API key. To analyze uploaded reports or ask questions, choose one provider and configure its API key. Set `AI_PROVIDER=openai` to use OpenAI, or `AI_PROVIDER=gemini` to use Google Gemini. Only the selected provider's key is required.
 
-1. Sign in at [OpenAI Platform](https://platform.openai.com/), not just the ChatGPT website.
-2. Select or create an API project for this development work.
-3. Configure the project's API billing/usage limits as required by your account or organization.
-4. Open the project's API keys area, create a key, and copy it when shown. Treat it like a password; do not commit it, put it in frontend code, or share it in chat.
+For OpenAI, create an API key in the [OpenAI Platform](https://platform.openai.com/) (a ChatGPT subscription alone does not include API usage). Set `OPENAI_API_KEY` and leave `AI_PROVIDER=openai`.
 
-A ChatGPT subscription and an API account are billed separately; having ChatGPT access alone does not guarantee API access or API credit. Follow your organization's rules for model use and spending limits.
+For Gemini, create an API key in [Google AI Studio](https://aistudio.google.com/app/apikey), set `AI_PROVIDER=gemini` and `GOOGLE_API_KEY`, and leave `OPENAI_API_KEY` blank. The defaults use `gemini-2.5-flash` for analysis and `gemini-embedding-001` for embeddings; the embedding output is configured to match the database's 1536-dimensional vector column.
 
-For local demo mode, set these values in `backend\.env`. Leave `OPENAI_API_KEY` blank if you only want to test guest login and navigate the workspace:
+Treat API keys like passwords: do not commit them, put them in frontend code, or share them in chat. Follow your organization's rules for model use and spending limits. Changing the embedding provider or model makes previously generated vectors incompatible; the app keeps them out of retrieval until they are re-indexed. Choose the provider before indexing reports and knowledge sources, or re-upload/re-index those sources after changing providers.
+
+For local demo mode, set these values in `backend\.env`. Leave both provider keys blank if you only want to test guest login and navigate the workspace. For Gemini, change `AI_PROVIDER` to `gemini` and set `GOOGLE_API_KEY` instead:
 
 ```dotenv
 APP_ENV=development
 DEMO_MODE=true
 DEMO_AUTH_SECRET=<a random secret with at least 32 characters>
+AI_PROVIDER=openai
 OPENAI_API_KEY=<API key for your OpenAI project>
+GOOGLE_API_KEY=
 S3_ENDPOINT_URL=http://localhost:9000
 S3_BUCKET=financial-reports
 S3_ACCESS_KEY_ID=localminio
@@ -130,7 +131,9 @@ With `DEMO_MODE=true`, the connection screen offers two guest choices:
 
 Click either guest role to enter without a password or organization token. The backend issues a short-lived demo token automatically. To test approvals, first sign in once as **Guest approver**, sign out, then sign in as **Guest analyst** before submitting a report. Demo users share these fixed accounts and their data; do not use the demo for real decisions or confidential reports.
 
-If demo mode is off, the app instead requires an organization-issued RS256 API access token and its matching issuer, audience, and public key. Contact your identity-provider administrator for those values. Report analysis and question answering require an OpenAI API key in either mode.
+If demo mode is off, the app instead requires an organization-issued RS256 API access token and its matching issuer, audience, and public key. Contact your identity-provider administrator for those values. Report analysis and question answering require a key for the provider selected by `AI_PROVIDER`.
+
+If report submission reports a missing provider key, set `OPENAI_API_KEY` (`AI_PROVIDER=openai`) or `GOOGLE_API_KEY` (`AI_PROVIDER=gemini`) in `backend\.env` and restart the backend API. Do not put keys in frontend settings or share them in chat.
 
 ### Stop local services
 

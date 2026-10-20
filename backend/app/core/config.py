@@ -16,9 +16,13 @@ class Settings(BaseSettings):
     jwt_issuer: str = ""
     jwt_audience: str = ""
     jwt_public_key: SecretStr | None = None
+    ai_provider: Literal["openai", "gemini"] = "openai"
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-4o-mini"
     embedding_model: str = "text-embedding-3-small"
+    google_api_key: SecretStr | None = None
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
     s3_endpoint_url: str = ""
     s3_bucket: str = "financial-reports"
     s3_access_key_id: SecretStr | None = None
@@ -39,3 +43,17 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def get_ai_api_key(settings: Settings | None = None) -> str:
+    settings = settings or get_settings()
+    if settings.ai_provider == "gemini":
+        env_name = "GOOGLE_API_KEY"
+        api_key = settings.google_api_key
+    else:
+        env_name = "OPENAI_API_KEY"
+        api_key = settings.openai_api_key
+
+    if not api_key or not api_key.get_secret_value().strip():
+        raise RuntimeError(f"{env_name} must be configured for the selected AI provider.")
+    return api_key.get_secret_value()
